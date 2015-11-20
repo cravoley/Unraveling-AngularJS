@@ -1,6 +1,7 @@
 ﻿angular.module('diveLog', [])
 	.controller('diveLogCtrl', DiveLogCtrl)
-	.factory('diveLogApi', diveLogApi);
+	.factory('diveLogApi', diveLogApi)
+	.constant("apiUrl", 'http://unraveling-ng.azurewebsites.net');
 
 function DiveLogCtrl($scope, diveLogApi) {
 	$scope.dives = [];
@@ -15,14 +16,15 @@ function DiveLogCtrl($scope, diveLogApi) {
 		$scope.dives = [];
 		$scope.errorMessage = '';
 		diveLogApi.getDives()
-			.then(function (data) {
+			.success(function (data) {
+				console.log(data);
 				$scope.dives = data;
 				$scope.errorMessage = '';
 				loading = false;
-			},
-			function (reason) {
+			})
+			.error(function () {
 				$scope.dives = [];
-				$scope.errorMessage = reason;
+				$scope.errorMessage = "Unable to get dives from webservices";
 				loading = false;
 			});
 
@@ -34,39 +36,11 @@ function DiveLogCtrl($scope, diveLogApi) {
 }
 
 
-function diveLogApi($q) {
-	var dives = [
-		{
-			site: 'Abu Gotta Ramada',
-			location: 'Hurghada, Egypt',
-			depth: 72,
-			time: 54
-		},
-		{
-			site: 'Ponte Mahoon',
-			location: 'Maehbourg, Mauritius',
-			depth: 54,
-			time: 38
-		},
-		{
-			site: 'Molnar Cave',
-			location: 'Budapest, Hungary',
-			depth: 98,
-			time: 62
-		}];
-	var counter = 0;
+function diveLogApi($http, apiUrl) {
 	return {
 		getDives: function () {
-			var deffer = $q.defer();
-			counter++;
-			setTimeout(function () {
-				if (counter % 3 == 0) {
-					deffer.reject('Error: Call counter is ' + counter);
-				} else {
-					deffer.resolve(dives);
-				}
-			}, 1000);
-			return deffer.promise;
+			var url = apiUrl + "/api/backendtest/dives"
+			return $http.get(url);
 		}
 	}
 }
