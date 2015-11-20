@@ -6,18 +6,26 @@ function DiveLogCtrl($scope, diveLogApi) {
 	$scope.dives = [];
 	$scope.refreshDives = refreshDives;
 	$scope.isLoading = isLoading;
+	$scope.errorMessage = '';
 
 	var loading = false;
 
 	function refreshDives() {
-		console.log("aaa");
 		loading = true;
 		$scope.dives = [];
-		setTimeout(function () {
-			$scope.dives = diveLogApi.getDives();
-			loading = false;
-			$scope.$apply();
-		}, 1000);
+		$scope.errorMessage = '';
+		diveLogApi.getDives()
+			.then(function (data) {
+				$scope.dives = data;
+				$scope.errorMessage = '';
+				loading = false;
+			},
+			function (reason) {
+				$scope.dives = [];
+				$scope.errorMessage = reason;
+				loading = false;
+			});
+
 	}
 
 	function isLoading() {
@@ -26,7 +34,7 @@ function DiveLogCtrl($scope, diveLogApi) {
 }
 
 
-function diveLogApi() {
+function diveLogApi($q) {
 	var dives = [
 		{
 			site: 'Abu Gotta Ramada',
@@ -46,9 +54,19 @@ function diveLogApi() {
 			depth: 98,
 			time: 62
 		}];
+	var counter = 0;
 	return {
 		getDives: function () {
-			return dives;
+			var deffer = $q.defer();
+			counter++;
+			setTimeout(function () {
+				if (counter % 3 == 0) {
+					deffer.reject('Error: Call counter is ' + counter);
+				} else {
+					deffer.resolve(dives);
+				}
+			}, 1000);
+			return deffer.promise;
 		}
 	}
 }

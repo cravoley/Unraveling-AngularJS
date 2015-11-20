@@ -8,6 +8,13 @@
 <div class="container-fluid" ng-controller="diveLogCtrl">
 	<h1>My Latest Dives (with API service)</h1>
 
+	<div class="row" ng-show="errorMessage!=''">
+		<div class="col-sm-12">
+			<h3 class="text-danger">{{errorMessage}}</h3>
+		</div>
+
+	</div>
+
 	<div class="row">
 		<div class="col-sm-8">
 			<button class="btn btn-lg btn-primary" ng-click="refreshDives()">Refresh</button>
